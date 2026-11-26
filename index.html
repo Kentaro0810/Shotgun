@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LAST CHAMBER</title>
+<style>
+:root{--ink:#d7d1bd;--muted:#8d897b;--red:#a6382e;--gold:#bd9a57;--table:#181b18;--panel:#242720;--line:#4a4b40}
+*{box-sizing:border-box}body{margin:0;background:#080908;color:var(--ink);font-family:ui-monospace,"Noto Sans JP",monospace;min-height:100vh;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 35%,transparent 0 25%,#0009 75%),repeating-linear-gradient(0deg,#fff1 0 1px,transparent 1px 4px);mix-blend-mode:soft-light}
+#app{width:min(1180px,100%);margin:auto;padding:12px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{letter-spacing:.25em;font-weight:900;color:#eee6cc}.status{color:var(--gold);font-size:.85rem}
+.arena{position:relative;min-height:680px;border:1px solid #36382f;background:radial-gradient(ellipse at 50% 45%,#35352a 0,#1b1d18 48%,#0b0c0b 100%);box-shadow:inset 0 0 80px #000,0 12px 50px #000;border-radius:8px;overflow:hidden}
+.dealer{height:170px;display:grid;place-items:center;position:relative}.head{width:72px;height:72px;border-radius:45% 45% 50% 50%;background:#050505;box-shadow:0 10px 0 25px #0a0a09,0 0 40px #aa2b1f33;position:relative}.head:after{content:"◉   ◉";white-space:pre;color:#b74532;position:absolute;top:24px;left:15px;font-size:12px}.dealerName{position:absolute;bottom:8px;letter-spacing:.2em;color:#aaa}
+.table{margin:0 3%;height:455px;border-radius:45% 45% 10px 10px/18% 18% 10px 10px;background:linear-gradient(90deg,#12130f,#292b22 20%,#2d2e25 50%,#292b22 80%,#12130f);border:10px solid #11130f;box-shadow:inset 0 0 50px #0009,0 -8px 18px #000;position:relative;padding:16px}
+.hud{display:flex;justify-content:space-between;gap:10px}.lifeBox{background:#0b0c0acc;border:1px solid var(--line);padding:8px 12px;min-width:150px}.life{color:#d55543;letter-spacing:4px}.shellInfo{text-align:center;background:#0b0c0acc;border:1px solid var(--line);padding:8px 14px}.live{color:#d74a3d}.blank{color:#c6ccb7}
+.gun{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%) rotate(-2deg);width:310px;height:58px}.barrel{position:absolute;left:0;top:18px;width:210px;height:22px;background:linear-gradient(#777,#20211f 45%,#070807 55%,#41423e);border-radius:8px 2px 2px 8px;box-shadow:0 8px 10px #000}.stock{position:absolute;right:0;top:8px;width:120px;height:48px;background:linear-gradient(160deg,#604126,#26170f);clip-path:polygon(0 20%,70% 0,100% 30%,86% 100%,30% 78%)}
+.log{position:absolute;left:50%;top:59%;transform:translateX(-50%);width:min(650px,82%);height:78px;overflow:auto;background:#080908d9;border:1px solid #44463d;padding:8px;font-size:.82rem;color:#c5c0ae}.log div{margin:2px 0}.actions{position:absolute;bottom:92px;left:50%;transform:translateX(-50%);display:flex;gap:10px}.btn{background:#171914;color:#ddd5bd;border:1px solid #666455;padding:12px 18px;font:inherit;cursor:pointer;border-radius:3px}.btn:hover:not(:disabled),.item:hover:not(:disabled){border-color:var(--gold);color:#fff}.btn.danger{border-color:#74332b}.btn:disabled,.item:disabled{opacity:.35;cursor:not-allowed}
+.items{position:absolute;left:14px;right:14px;bottom:12px;display:grid;grid-template-columns:repeat(6,1fr);gap:7px}.item{height:70px;background:#141612;border:1px solid #4d4e44;color:#ddd;padding:5px;cursor:pointer;font:inherit;font-size:.7rem}.item b{display:block;color:var(--gold);font-size:.78rem;margin-bottom:4px}.item span{display:block;color:#9e9a8b}
+.overlay{position:absolute;inset:0;background:#050505e8;display:grid;place-items:center;z-index:5}.card{width:min(520px,90%);background:#151713;border:1px solid #615f50;padding:28px;box-shadow:0 20px 80px #000}.card h1{letter-spacing:.18em;margin-top:0}.card p{color:#aaa694;line-height:1.6}.settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}.settings label{font-size:.8rem;color:#aaa}.settings select{width:100%;margin-top:5px;background:#090a09;color:#ddd;border:1px solid #555;padding:8px}.hidden{display:none!important}.flash{animation:flash .18s}@keyframes flash{50%{filter:brightness(3) saturate(.4)}}
+@media(max-width:700px){#app{padding:0}.arena{min-height:770px;border-radius:0}.table{margin:0;height:560px;padding:12px}.gun{top:38%;transform:translate(-50%,-50%) scale(.78)}.log{top:47%;height:100px}.actions{bottom:185px;width:94%;justify-content:center}.btn{padding:11px 9px}.items{grid-template-columns:repeat(3,1fr)}.item{height:76px}.hud{font-size:.75rem}.lifeBox{min-width:112px}.shellInfo{padding:8px 5px}}
+</style></head>
+<body><div id="app"><div class="top"><div class="brand">LAST CHAMBER</div><div class="status" id="turnLabel">待機中</div></div>
+<div class="arena" id="arena"><div class="dealer"><div class="head"></div><div class="dealerName">THE KEEPER // BOT</div></div>
+<div class="table"><div class="hud"><div class="lifeBox">KEEPER <span class="life" id="botLife"></span></div><div class="shellInfo">薬室残数 <b id="remain">-</b><br><span class="live">実弾 ?</span> / <span class="blank">空包 ?</span></div><div class="lifeBox" style="text-align:right">YOU <span class="life" id="playerLife"></span></div></div>
+<div class="gun"><div class="barrel"></div><div class="stock"></div></div><div class="log" id="log" aria-live="polite"></div>
+<div class="actions"><button class="btn danger" id="shootBot">KEEPERを撃つ</button><button class="btn" id="shootSelf">自分を撃つ</button></div><div class="items" id="items"></div></div>
+<div class="overlay" id="overlay"><div class="card"><h1>LAST CHAMBER</h1><p>実弾と空包が混ざったショットガンを巡る、オリジナルの確率心理戦。相手の生命をゼロにすれば勝利。直接的な流血表現はありません。</p><div class="settings"><label>BOT難易度<select id="difficulty"><option value="normal">NORMAL</option><option value="hard">HARD</option><option value="expert">EXPERT</option></select></label><label>生命数<select id="maxLife"><option>3</option><option selected>4</option><option>5</option></select></label></div><button class="btn" id="start">ゲーム開始</button></div></div></div></div>
+<script>
+(()=>{const $=s=>document.querySelector(s), arena=$('#arena'),log=$('#log');let S={};
+const defs=[
+{id:'lens',name:'検査灯',desc:'現在の弾を確認'},
+{id:'eject',name:'排莢レバー',desc:'現在の弾を排出'},
+{id:'cuff',name:'配線ロック',desc:'相手の次手を封じる'},
+{id:'plate',name:'防弾プレート',desc:'次の実弾を1軽減'},
+{id:'invert',name:'極性反転器',desc:'現在の弾を反転'},
+{id:'scanner',name:'残響スキャナ',desc:'次の2発を解析'},
+{id:'overload',name:'過圧装置',desc:'次の実弾を2ダメージ'},
+{id:'jammer',name:'情報妨害器',desc:'相手の既知情報を消去'}];
+function say(t){let d=document.createElement('div');d.textContent='> '+t;log.append(d);log.scrollTop=log.scrollHeight}
+function rand(n){return Math.floor(Math.random()*n)} function other(a){return a==='player'?'bot':'player'}
+function freshItems(){return Array.from({length:4},()=>defs[rand(defs.length)].id)}
+function reload(){let total=4+rand(4),live=1+rand(total-1);S.shells=Array(live).fill(1).concat(Array(total-live).fill(0)).sort(()=>Math.random()-.5);S.known={player:{},bot:{}};S.items.player.push(...freshItems().slice(0,2));S.items.bot.push(...freshItems().slice(0,2));say(`装填: 実弾 ${live} / 空包 ${total-live}`)}
+function init(){let life=+$('#maxLife').value;S={life:{player:life,bot:life},max:life,turn:'player',shells:[],items:{player:freshItems(),bot:freshItems()},skip:{player:0,bot:0},armor:{player:0,bot:0},boost:{player:0,bot:0},known:{player:{},bot:{}},busy:false,diff:$('#difficulty').value};log.innerHTML='';reload();$('#overlay').classList.add('hidden');say('ゲーム開始。あなたの手番です。');render()}
+function render(){let hearts=n=>'●'.repeat(n)+'○'.repeat(S.max-n);$('#playerLife').textContent=hearts(S.life.player);$('#botLife').textContent=hearts(S.life.bot);$('#remain').textContent=S.shells.length;$('#turnLabel').textContent=S.busy?'処理中':S.turn==='player'?'YOUR TURN':'KEEPER TURN';let disabled=S.busy||S.turn!=='player';$('#shootBot').disabled=disabled;$('#shootSelf').disabled=disabled;let box=$('#items');box.innerHTML='';S.items.player.forEach((id,i)=>{let x=defs.find(d=>d.id===id),b=document.createElement('button');b.className='item';b.disabled=disabled;b.innerHTML=`<b>${x.name}</b><span>${x.desc}</span>`;b.onclick=()=>use('player',i);box.append(b)})}
+function end(w){S.busy=true;render();setTimeout(()=>{let card=$('#overlay .card');card.innerHTML=`<h1>${w==='player'?'YOU SURVIVED':'THE KEEPER WINS'}</h1><p>${w==='player'?'生き残った。確率と情報の管理が勝敗を分けた。':'Keeperに読み切られた。もう一度、装填パターンを見極めよう。'}</p><button class="btn" id="again">再戦</button>`;$('#overlay').classList.remove('hidden');$('#again').onclick=()=>location.reload()},500)}
+function next(forceSame=false){if(S.life.player<=0)return end('bot');if(S.life.bot<=0)return end('player');if(!S.shells.length)reload();if(!forceSame)S.turn=other(S.turn);if(S.skip[S.turn]){say(`${S.turn==='player'?'あなた':'Keeper'}は行動を封じられた`);S.skip[S.turn]=0;S.turn=other(S.turn)}S.busy=false;render();if(S.turn==='bot')setTimeout(botTurn,700)}
+function shoot(actor,target){if(S.busy)return;S.busy=true;render();let shell=S.shells.shift(),name=actor==='player'?'あなた':'Keeper',tn=target==='player'?'あなた':'Keeper';arena.classList.add('flash');setTimeout(()=>arena.classList.remove('flash'),200);if(shell){let dmg=S.boost[actor]?2:1;S.boost[actor]=0;if(S.armor[target]){dmg=Math.max(0,dmg-1);S.armor[target]=0;say(`${tn}のプレートが衝撃を軽減`)}S.life[target]-=dmg;say(`${name}が${tn}を撃つ: 実弾 / ${dmg}ダメージ`);next(false)}else{say(`${name}が${tn}を撃つ: 空包`);next(target===actor)} }
+function use(a,index){if(S.busy||S.turn!==a)return;let id=S.items[a].splice(index,1)[0],enemy=other(a),n=a==='player'?'あなた':'Keeper';
+if(id==='lens'){S.known[a][0]=S.shells[0];say(`${n}は検査灯を使用${a==='player'?`: 現在は${S.shells[0]?'実弾':'空包'}`:''}`)}
+if(id==='eject'){let x=S.shells.shift();say(`${n}は弾を排出${a==='player'?`: ${x?'実弾':'空包'}`:''}`);if(!S.shells.length)reload()}
+if(id==='cuff'){S.skip[enemy]=1;say(`${n}は相手の次手を封じた`)}
+if(id==='plate'){S.armor[a]=1;say(`${n}は防弾プレートを装着`)}
+if(id==='invert'){S.shells[0]=1-S.shells[0];say(`${n}は現在の弾を反転させた`);S.known.player={};S.known.bot={}}
+if(id==='scanner'){S.known[a][0]=S.shells[0];S.known[a][1]=S.shells[1];say(`${n}は2発を解析${a==='player'?`: ${S.shells.slice(0,2).map(x=>x?'実':'空').join(' → ')}`:''}`)}
+if(id==='overload'){S.boost[a]=1;say(`${n}は次の実弾を過圧化`)}
+if(id==='jammer'){S.known[enemy]={};say(`${n}は相手の情報を妨害`)}render();if(a==='bot')setTimeout(botTurn,500)}
+function botTurn(){if(S.turn!=='bot'||S.busy)return;let items=S.items.bot,known=S.known.bot[0],live=S.shells.reduce((a,b)=>a+b,0),p=live/S.shells.length;
+let priority=[];if(known===undefined)priority.push('scanner','lens');if(S.life.bot<=2&&!S.armor.bot)priority.push('plate');if((known===1||p>.56)&&!S.boost.bot)priority.push('overload');if(known===0)priority.push('invert','eject');if(S.skip.player===0&&p>.48)priority.push('cuff');if(Object.keys(S.known.player).length)priority.push('jammer');
+let chance=S.diff==='expert'?.9:S.diff==='hard'?.72:.52;if(Math.random()<chance){for(let id of priority){let i=items.indexOf(id);if(i>=0){use('bot',i);return}}}
+known=S.known.bot[0];live=S.shells.reduce((a,b)=>a+b,0);p=live/S.shells.length;if(known===1)return shoot('bot','player');if(known===0)return shoot('bot','bot');let threshold=S.diff==='expert'?.5:S.diff==='hard'?.56:.62;shoot('bot',p>=threshold?'player':'bot')}
+$('#start').onclick=init;$('#shootBot').onclick=()=>shoot('player','bot');$('#shootSelf').onclick=()=>shoot('player','player');render();})();
+</script></body></html>
