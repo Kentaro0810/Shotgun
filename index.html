@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LAST CHAMBER v1.6.1</title>
+<title>LAST CHAMBER v1.6.2</title>
 <style>
 :root{--ink:#d7d1bd;--muted:#8d897b;--red:#a6382e;--gold:#bd9a57;--table:#181b18;--panel:#242720;--line:#4a4b40}
 *{box-sizing:border-box}body{margin:0;background:#080908;color:var(--ink);font-family:ui-monospace,"Noto Sans JP",monospace;min-height:100vh;overflow-x:hidden}
@@ -55,7 +55,13 @@ function drawItem(exclude=[]){let pool=defs.filter(d=>!exclude.includes(d.id)),t
 function freshItems(){return Array.from({length:4},()=>drawItem())}
 function reload(){let total=4+rand(4),live=1+rand(total-1);S.shells=Array(live).fill(1).concat(Array(total-live).fill(0)).sort(()=>Math.random()-.5);S.known={player:{},bot:{}};S.items.player.push(...freshItems().slice(0,Math.max(0,6-S.items.player.length)));S.items.bot.push(...freshItems().slice(0,Math.max(0,6-S.items.bot.length)));say(`装填: 実弾 ${live} / 空包 ${total-live}`)}
 function prepareRound(){S.roundEnding=false;let life=S.max;S.life={player:life,bot:life};S.shells=[];S.items={player:freshItems(),bot:freshItems()};S.skip={player:0,bot:0};S.armor={player:0,bot:0};S.boost={player:0,bot:0};S.fuse={player:0,bot:0};S.known={player:{},bot:{}};S.busy=true;S.starter=null;S.history=[];S.stats={shots:0,live:0,blank:0,items:0,maxChain:0,chain:0,start:Date.now()};log.innerHTML='';reload();render()}
-function coinToss(){prepareRound();let keeperFirst=Math.random()<.5,starter=keeperFirst?'bot':'player';let card=$('#overlay .card');card.innerHTML=`<div class="coinStage"><h1>COIN TOSS</h1><div class="coin ${keeperFirst?'flipKeeper':'flipYou'}"><div class="coinFace keeper"></div><div class="coinFace you">YOU<br>FIRST</div></div><div class="coinText" id="coinText">コインを投げています...</div></div>`;$('#overlay').classList.remove('hidden');setTimeout(()=>{S.starter=starter;S.turn=starter;$('#starterLabel').textContent=`先攻: ${starter==='player'?'YOU':'KEEPER'}`;$('#coinText').textContent=keeperFirst?'KEEPERの顔の面。KEEPERが先攻':'裏面。あなたが先攻';setTimeout(()=>{$('#overlay').classList.add('hidden');S.busy=false;say(`第${S.round}ラウンド開始。コイントスの結果、${starter==='player'?'あなた':'Keeper'}が先攻です。`);render();if(starter==='bot')setTimeout(botTurn,700)},1050)},1700)}
+function coinToss(){
+let overlay=$('#overlay'),card=$('#overlay .card'),keeperFirst=Math.random()<.5,starter=keeperFirst?'bot':'player';
+overlay.classList.remove('hidden');
+card.innerHTML=`<div class="coinStage"><h1>COIN TOSS</h1><div class="coin ${keeperFirst?'flipKeeper':'flipYou'}"><div class="coinFace keeper"></div><div class="coinFace you">YOU<br>FIRST</div></div><div class="coinText" id="coinText">コイントス中…</div></div>`;
+try{prepareRound()}catch(err){console.error(err);card.innerHTML='<h2>開始処理エラー</h2><p>ページを再読み込みしてください。</p>';return}
+setTimeout(()=>{S.starter=starter;S.turn=starter;$('#starterLabel').textContent=`先攻: ${starter==='player'?'YOU':'KEEPER'}`;let ct=$('#coinText');if(ct)ct.textContent=keeperFirst?'KEEPERの面：KEEPERが先攻':'YOUの面：あなたが先攻';setTimeout(()=>{overlay.classList.add('hidden');S.busy=false;say(`第${S.round}ラウンド開始。${starter==='player'?'あなた':'Keeper'}が先攻です。`);render();if(starter==='bot')setTimeout(botTurn,700)},900)},1600)
+}
 function init(){let life=+$('#maxLife').value;S={max:life,diff:$('#difficulty').value,target:+$('#matchTarget').value,score:{player:0,bot:0},round:1};coinToss()}
 function showMatchCard(title,message,button,action){S.busy=true;render();setTimeout(()=>{let sec=Math.max(1,Math.round((Date.now()-S.stats.start)/1000)),card=$('#overlay .card');card.innerHTML=`<h1>${title}</h1><p>${message}</p><div class="roundStats"><div>発射回数 <span>${S.stats.shots}</span></div><div>実弾回数 <span>${S.stats.live}</span></div><div>空包回数 <span>${S.stats.blank}</span></div><div>アイテム使用 <span>${S.stats.items}</span></div><div>最大連続手番 <span>${S.stats.maxChain}</span></div><div>ラウンド時間 <span>${sec}秒</span></div><div>YOU残生命 <span>${Math.max(0,S.life.player)}</span></div><div>KEEPER残生命 <span>${Math.max(0,S.life.bot)}</span></div></div><p><strong>YOU ${S.score.player} - ${S.score.bot} KEEPER</strong></p><button class="btn" id="continueBtn">${button}</button>`;$('#overlay').classList.remove('hidden');$('#continueBtn').onclick=action},450)}
 function end(w){if(S.roundEnding)return;S.roundEnding=true;S.score[w]++;render();let wonMatch=S.score[w]>=S.target;if(wonMatch){showMatchCard(w==='player'?'MATCH VICTORY':'MATCH DEFEAT',`${S.target}本先取の対戦が終了しました。`,'設定へ戻る',()=>location.reload());return}showMatchCard(w==='player'?'ROUND WON':'ROUND LOST',`第${S.round}ラウンド終了。次のラウンドへ進みます。`,'次のラウンド',()=>{S.round++;S.roundEnding=false;$('#overlay').classList.add('hidden');coinToss()})}
@@ -118,5 +124,5 @@ let selfValue=(1-p)*.70-(p*(S.armor.bot?0.12:0.48))+(S.life.bot>S.life.player?.0
 target=attackValue>=q.attack||attackValue>selfValue+.18?'player':'bot';
 if(q.noise&&Math.random()<q.noise)target=other(target)}
 shoot('bot',target)}
-$('#helpBtn').onclick=()=>$('#visualHelp').classList.remove('hidden');$('#closeHelp').onclick=()=>$('#visualHelp').classList.add('hidden');$('#logToggle').onclick=()=>{const l=$('#log'),open=l.classList.toggle('compact');$('#logToggle').textContent=open?'履歴を開く ▾':'履歴を閉じる ▴'};$('#start').onclick=init;$('#shootBot').onclick=()=>shoot('player','bot');$('#shootSelf').onclick=()=>shoot('player','player');render();})();
+$('#helpBtn').addEventListener('click',()=>$('#visualHelp').classList.remove('hidden'));$('#closeHelp').addEventListener('click',()=>$('#visualHelp').classList.add('hidden'));$('#logToggle').addEventListener('click',()=>{const l=$('#log'),open=l.classList.toggle('compact');$('#logToggle').textContent=open?'履歴を開く ▾':'履歴を閉じる ▴'});const startBtn=$('#start');startBtn.addEventListener('click',e=>{e.preventDefault();startBtn.disabled=true;init()},{once:true});$('#shootBot').addEventListener('click',()=>shoot('player','bot'));$('#shootSelf').addEventListener('click',()=>shoot('player','player'));render();})();
 </script></body></html>
