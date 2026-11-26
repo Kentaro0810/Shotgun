@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LAST CHAMBER v1.6.0</title>
+<title>LAST CHAMBER v1.6.1</title>
 <style>
 :root{--ink:#d7d1bd;--muted:#8d897b;--red:#a6382e;--gold:#bd9a57;--table:#181b18;--panel:#242720;--line:#4a4b40}
 *{box-sizing:border-box}body{margin:0;background:#080908;color:var(--ink);font-family:ui-monospace,"Noto Sans JP",monospace;min-height:100vh;overflow-x:hidden}
@@ -34,6 +34,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;background:rad
 <div class="visualHelp hidden" id="visualHelp"><div class="helpCard"><h2>見ればわかる遊び方</h2><div class="helpGrid"><div class="helpTile"><i>🎯</i><div><b>相手を撃つ</b><span>実弾なら相手にダメージ</span></div></div><div class="helpTile"><i>↩</i><div><b>自分を撃つ</b><span>空包なら続けて行動</span></div></div><div class="helpTile"><i>● ○</i><div><b>残りの弾</b><span>赤が実弾、白が空包</span></div></div><div class="helpTile"><i>◆</i><div><b>アイテム</b><span>カードをタップして効果を確認</span></div></div></div><button type="button" class="btn closeHelp" id="closeHelp">ゲームに戻る</button></div></div><div class="overlay" id="overlay"><div class="card"><h1>LAST CHAMBER</h1><p>実弾と空包が混ざったショットガンを巡る、オリジナルの確率心理戦。各ラウンド開始時にコイントスで先攻を決定。ラウンドを勝ち抜き、設定した先取本数へ到達すれば勝利。直接的な流血表現はありません。</p><div class="settings"><label>BOT強さ（5段階）<select id="difficulty"><option value="rookie">1 ROOKIE</option><option value="easy">2 EASY</option><option value="standard" selected>3 STANDARD</option><option value="hard">4 HARD</option><option value="master">5 MASTER</option></select></label><label>生命数<select id="maxLife"><option>3</option><option selected>4</option><option>5</option></select></label><label>何本先取<select id="matchTarget"><option value="1">1本先取</option><option value="2" selected>2本先取</option><option value="3">3本先取</option><option value="5">5本先取</option></select></label></div><button class="btn" id="start">ゲーム開始</button></div></div></div></div>
 <script>
 (()=>{const $=s=>document.querySelector(s), arena=$('#arena'),log=$('#log');let S={};
+const itemIcons={lens:'🔦',eject:'↗',cuff:'⛓',plate:'🛡',invert:'⇄',scanner:'◉',overload:'⚡',jammer:'✕',wiretap:'⌁',fuse:'◈',reroll:'⟳',contract:'♜'};
 const defs=[
 {id:'lens',name:'検査灯',desc:'現在の弾を確認'},
 {id:'eject',name:'排莢レバー',desc:'現在の弾を排出'},
